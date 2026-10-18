@@ -1392,6 +1392,8 @@ async function init() {
   cekKontak();
   // Ambil data info
   loadInfoPage();
+  //ambil log user
+  logUserVisit();
   }
 
 if (document.readyState === 'loading') {
@@ -1644,6 +1646,36 @@ function switchPage(pageName, el) {
   // Tutup drawer
   closeDrawer();
 }
+
+  // ==========================================
+// LOG USER MASUK (Hanya jalan kalau bukan bot/admin)
+// ==========================================
+const USERS_API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.hostname.includes('github.io'))
+  ? 'https://bypaslink.vercel.app/api/users'
+  : '/api/users';
+
+function detectDevice() {
+  const ua = navigator.userAgent;
+  if (/android/i.test(ua)) return /mobile/i.test(ua) ? 'Android Phone' : 'Android Tablet';
+  if (/iPad|iPhone|iPod/.test(ua)) return 'iOS';
+  if (/windows/i.test(ua)) return 'Windows';
+  if (/mac/i.test(ua)) return 'Mac';
+  if (/linux/i.test(ua)) return 'Linux';
+  return 'Unknown';
+}
+
+async function logUserVisit() {
+  // Jangan log kalau admin mode
+  if (isAdminMode) return;
+  
+  try {
+    const device = detectDevice();
+    await fetch(USERS_API + '?action=log&device=' + encodeURIComponent(device), { cache: 'no-store' });
+  } catch (e) {}
+}
+
+// Panggil di dalam fungsi init()
+// Cari async function init() { ... }, lalu tambahkan logUserVisit(); di dalamnya.
 
 // ==========================================
 // RIWAYAT BYPASS
