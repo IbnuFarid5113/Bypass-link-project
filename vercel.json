@@ -1,11 +1,15 @@
 {
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/riwayat", "destination": "/index.html" },
-    { "source": "/info", "destination": "/index.html" }
+    { "source": "/riwayat", "destination": "/public/index.html" },
+    { "source": "/info", "destination": "/public/index.html" }
   ],
   "functions": {
-    "api/bypass.js": { "maxDuration": 30 },
-    "api/health.js": { "maxDuration": 30 }
+    "api/bypass.js": {
+      "maxDuration": 30
+    },
+    "api/health.js": {
+      "maxDuration": 30
+    }
   }
 }
