@@ -3,6 +3,7 @@
 
 import { kv } from '@vercel/kv';
 
+// Kunci diambil murni dari Environment Variables Vercel
 const ADMIN_KEY_1 = process.env.ADMIN_KEY_1;
 const ADMIN_KEY_2 = process.env.ADMIN_KEY_2;
 
@@ -15,7 +16,7 @@ export default async function handler(req, res) {
   const { action, device, key1, key2 } = req.query;
 
   // ==========================================
-  // MODE LOG — user kirim data saat buka
+  // MODE LOG — user kirim data saat buka web
   // ==========================================
   if (action === 'log') {
     try {
@@ -24,7 +25,7 @@ export default async function handler(req, res) {
               || req.headers['x-real-ip']
               || 'unknown';
 
-      // Ambil semua log
+      // Ambil semua log yang ada di database
       const rawLogs = await kv.lrange('user_logs', 0, -1) || [];
       let logs = [];
       for (const raw of rawLogs) {
@@ -33,15 +34,21 @@ export default async function handler(req, res) {
         } catch (e) {}
       }
 
-      // Cek apakah IP sudah ada
+      // ==========================================
+      // CEK: Apakah IP ini sudah ada di daftar?
+      // ==========================================
       const existingIdx = logs.findIndex(l => l.ip === ip);
 
       if (existingIdx !== -1) {
-        logs[existingIdx].time = new Date().toISOString();
-        logs[existingIdx].device = device || 'unknown';
-        logs[existingIdx].ua = ua.substring(0, 200);
-        logs[existingIdx].visits = (logs[existingIdx].visits || 1) + 1;
+        // KALAU SUDAH ADA: Jangan buat baru, cukup update waktunya ke paling atas
+        const existingUser = logs.splice(existingIdx, 1)[0]; // Ambil datanya, hapus dari posisi lama
+        existingUser.time = new Date().toISOString();        // Update waktu jadi sekarang
+        existingUser.device = device || 'unknown';           // Update device (kalau ganti HP)
+        existingUser.ua = ua.substring(0, 200);              // Update User-Agent
+        existingUser.visits = (existingUser.visits || 1) + 1;// Tambah hitungan kunjungan
+        logs.unshift(existingUser);                          // Taruh paling atas
       } else {
+        // KALAU BELUM ADA: Baru buat data baru
         logs.unshift({
           time: new Date().toISOString(),
           ip: ip,
@@ -51,10 +58,10 @@ export default async function handler(req, res) {
         });
       }
 
-      // Batasi max 50
+      // Batasi maksimal 50 user terakhir
       logs = logs.slice(0, 50);
 
-      // Simpan kembali
+      // Simpan kembali ke database (Timpa yang lama)
       await kv.del('user_logs');
       if (logs.length > 0) {
         await kv.lpush('user_logs', ...logs.map(l => JSON.stringify(l)));
