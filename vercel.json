@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/public/index.html"
+      "destination": "/public/index"
     }
   ],
   "functions": {
