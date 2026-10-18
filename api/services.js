@@ -6,8 +6,8 @@ import { kv } from '@vercel/kv';
 // ==========================================
 // KUNCI ADMIN — GANTI kalau perlu
 // ==========================================
-const ADMIN_KEY_1 = '5113';
-const ADMIN_KEY_2 = '25413';
+const ADMIN_KEY_1 = process.env.ADMIN_KEY_1;
+const ADMIN_KEY_2 = process.env.ADMIN_KEY_2;
 
 const VALID_SERVICES = ['adlink', 'sfl', 'delta', 'linkvertise', 'move2link', 'sub2unlock', 'sub4unlock', 'universal'];
 
