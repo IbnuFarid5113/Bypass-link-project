@@ -3,8 +3,8 @@
 
 import { kv } from '@vercel/kv';
 
-const ADMIN_KEY_1 = '5113';
-const ADMIN_KEY_2 = '25413';
+const ADMIN_KEY_1 = process.env.ADMIN_KEY_1;
+const ADMIN_KEY_2 = process.env.ADMIN_KEY_2;
 
 export default async function handler(req, res) {
   // CORS
