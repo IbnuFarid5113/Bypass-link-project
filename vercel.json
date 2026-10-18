@@ -1,9 +1,9 @@
 {
-  "cleanUrls": true,
+  "outputDirectory": "public",
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/public/index"
+      "destination": "/index.html"
     }
   ],
   "functions": {
