@@ -1000,7 +1000,6 @@ async function simpanInfo() {
   const key2 = $('key2').value.trim();
   const title = $('infoTitle').value.trim();
   const content = $('infoContent').value.trim();
-  const contact = $('infoContact').value.trim();
 
   if (!key1 || !key2) return showStatus('⚠️ Isi kedua kunci dulu!', 'error');
   if (!content) return showStatus('⚠️ Isi info tidak boleh kosong!', 'error');
@@ -1012,7 +1011,6 @@ async function simpanInfo() {
       '/api/info?action=set' +
       '&title=' + encodeURIComponent(title || 'Tentang Aplikasi') +
       '&content=' + encodeURIComponent(content) +
-      '&contact=' + encodeURIComponent(contact) +
       '&key1=' + encodeURIComponent(key1) +
       '&key2=' + encodeURIComponent(key2),
       { cache: 'no-store' }
@@ -1027,7 +1025,7 @@ async function simpanInfo() {
   } catch (err) {
     showStatus('❌ Error: ' + err.message, 'error');
   }
-}
+  }
 
 async function loadInfoAdmin() {
   try {
@@ -1035,7 +1033,7 @@ async function loadInfoAdmin() {
     const data = await res.json();
     if (data.title) $('infoTitle').value = data.title;
     if (data.content) $('infoContent').value = data.content;
-    if (data.contact) $('infoContact').value = data.contact;
+    // Baris infoContact dihapus
   } catch (e) {
     console.error('Gagal load info admin:', e);
   }
