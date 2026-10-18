@@ -404,6 +404,8 @@ button:active { transform: scale(.98); }
 
   <label>Isi Info</label>
   <textarea id="infoContent" placeholder="Tulis info aplikasi di sini..." rows="6" style="width:100%;padding:12px;background:#1b1e2a;border:1px solid #303444;border-radius:12px;color:#fff;font-size:13px;margin-bottom:12px;outline:none;resize:vertical;font-family:inherit;"></textarea>
+
+  <button class="btn-apply" onclick="simpanInfo()" style="background:linear-gradient(135deg,#00c896,#00a07a);">💾 SIMPAN INFO</button>
 </div>
 
   <!-- ========================================== -->
@@ -1133,13 +1135,22 @@ async function loadUsers() {
 // PAKAI APLIKASI
 // ==========================================
 function bukaAplikasi() {
-  const key1 = $('key1').value.trim();
-  const key2 = $('key2').value.trim();
-  if (!key1 || !key2) return showStatus('⚠️ Isi kedua kunci dulu!', 'error');
+  let key1 = $('key1').value.trim();
+  let key2 = $('key2').value.trim();
 
+  // Kalau kunci belum diisi di form, minta input lewat prompt
+  if (!key1 || !key2) {
+    key1 = prompt("Masukkan Kunci Pertama:");
+    if (!key1) return;
+    
+    key2 = prompt("Masukkan Kunci Kedua:");
+    if (!key2) return;
+  }
+
+  // Buka aplikasi di tab baru dengan token admin
   const url = '/?admin=' + encodeURIComponent(key1) + '&key2=' + encodeURIComponent(key2);
   window.open(url, '_blank');
-  showStatus('✅ Aplikasi dibuka di tab baru (mode admin)', 'off');
+  showStatus('✅ Aplikasi dibuka di tab baru (Mode Admin)', 'off');
 }
 
 // ==========================================
