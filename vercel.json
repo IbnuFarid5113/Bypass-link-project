@@ -1,11 +1,5 @@
 {
-  "outputDirectory": "public",
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ],
+  "cleanUrls": true,
   "functions": {
     "api/bypass.js": {
       "maxDuration": 30
