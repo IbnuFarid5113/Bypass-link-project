@@ -240,29 +240,60 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent}
   padding: 12px;
   margin-bottom: 8px;
   border-left: 3px solid #8b5cff;
-  cursor: pointer;
+  position: relative;
 }
-.history-item .top {
+.history-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  padding-right: 24px; /* Ruang buat tombol X */
 }
-.history-item .svc {
+.history-service {
   font-size: 13px;
   font-weight: 800;
   color: #fff;
 }
-.history-item .time {
+.history-delete {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 24px;
+  height: 24px;
+  background: #3a1a1a;
+  color: #ff8888;
+  border: 0;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+.history-delete:active { transform: scale(.9); }
+.history-links {
+  font-size: 11px;
+  line-height: 1.5;
+  margin-bottom: 15px;
+}
+.history-links .link-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.history-links .link-label { color: #5a5f70; font-weight: 600; width: 45px; flex-shrink: 0; }
+.history-links .link-text { color: #b8ffcf; word-break: break-all; }
+.history-links .link-text.dest { color: #ffca18; }
+.history-time {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
   font-size: 10px;
   color: #5a5f70;
   font-weight: 600;
 }
-.history-item .link {
-  font-size: 11px;
-  color: #b8ffcf;
-  word-break: break-all;
-  }
   
   /* Progress Bar */
 .progress-container {
@@ -712,8 +743,33 @@ body.has-broadcast{padding-top:60px}
 
 <!-- TAB: RIWAYAT -->
 <div class="tab-page" id="page-history">
-  <h2 style="font-size:22px;font-weight:800;margin-bottom:6px;">📜 Riwayat Bypass</h2>
-  <p style="color:#8d91a2;font-size:13px;margin-bottom:20px;">30 bypass terakhir kamu</p>
+  <!-- Jarak aman dari tombol hamburger -->
+  <div style="height: 40px;"></div>
+  
+  <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:20px;">
+    <div>
+      <h2 style="font-size:22px;font-weight:800;margin-bottom:6px;">📜 Riwayat Bypass</h2>
+      <p style="color:#8d91a2;font-size:13px;">30 bypass terakhir</p>
+    </div>
+    
+    <!-- TOMBOL HAPUS SEMUA YANG BARU -->
+    <button onclick="hapusSemuaRiwayat()" style="
+      width: auto; 
+      height: 32px; 
+      padding: 0 14px; 
+      font-size: 11px; 
+      background: #3a1a1a; 
+      color: #ff8888; 
+      border-radius: 8px; 
+      margin: 0; 
+      border: none; 
+      outline: none;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      box-shadow: none;
+      -webkit-tap-highlight-color: transparent;
+    ">🗑️ Hapus Semua</button>
+  </div>
   <div id="historyList"></div>
 </div>
 <!-- END TAB RIWAYAT -->
@@ -1697,6 +1753,7 @@ function saveHistory(list) {
 function addHistory(service, originalUrl, bypassedUrl) {
   const history = getHistory();
   history.unshift({
+    id: String(Date.now()), // Paksa jadi string unik
     service: service,
     original: originalUrl,
     bypassed: bypassedUrl,
@@ -1719,34 +1776,63 @@ function renderHistory() {
   const SERVICE_SHORT = {
     adlink: 'AdLinkSumo', sfl: 'SFL', delta: 'Delta',
     linkvertise: 'Linkvertise', move2link: 'Move2link',
-    sub2unlock: 'Sub2Unlock', sub4unlock: 'Sub4Unlock', universal: 'Universal'
+    sub2unlock: 'Sub2Unlock', sub4unlock: 'Sub4Unlock', bicolink: 'Bicolink', universal: 'Universal'
   };
 
   let html = '';
-  history.forEach((item, idx) => {
+  history.forEach((item) => {
     const date = new Date(item.time);
     const timeStr = date.toLocaleString('id-ID', {
       day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
     });
+    
+    // Ambil ID string
+    const itemId = item.id || String(new Date(item.time).getTime());
+
     html += `
-      <div class="history-item" onclick="window.open('${item.bypassed}', '_blank')">
-        <div class="top">
-          <span class="svc">${SERVICE_SHORT[item.service] || item.service}</span>
-          <span class="time">${timeStr}</span>
+      <div class="history-item">
+        <div class="history-header">
+          <span class="history-service">${SERVICE_SHORT[item.service] || item.service}</span>
         </div>
-        <div class="link">🔗 ${item.original}</div>
+        
+        <!-- Tombol Hapus (X) -->
+        <button class="history-delete" onclick="hapusSatuRiwayat('${itemId}')">✕</button>
+        
+        <div class="history-links">
+          <div class="link-row">
+            <span class="link-label">Awal:</span>
+            <span class="link-text">${item.original}</span>
+          </div>
+          <div class="link-row">
+            <span class="link-label">Hasil:</span>
+            <a href="${item.bypassed}" target="_blank" class="link-text dest" style="text-decoration:none;">${item.bypassed}</a>
+          </div>
+        </div>
+
+        <div class="history-time">${timeStr}</div>
       </div>
     `;
   });
   list.innerHTML = html;
 }
 
-function renderInfo() {
-  // Info statis — tidak perlu API
+// Fungsi Hapus Satu
+function hapusSatuRiwayat(id) {
+  let history = getHistory();
+  // Filter dengan membandingkan string
+  history = history.filter(h => String(h.id || new Date(h.time).getTime()) !== String(id));
+  saveHistory(history);
+  renderHistory();
+  toast('Riwayat dihapus');
 }
 
-// Render awal
-renderHistory();
+// Fungsi Hapus Semua
+function hapusSemuaRiwayat() {
+  if (!confirm('🗑️ Hapus semua riwayat bypass kamu?')) return;
+  localStorage.removeItem('sd_history');
+  renderHistory();
+  toast('Semua riwayat dihapus');
+    }
 
 // ==========================================
 // WELCOME MESSAGE
