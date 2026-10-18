@@ -281,6 +281,18 @@ button:active { transform: scale(.98); }
 
 /* Divider */
 .divider { height: 1px; background: #292c3b; margin: 20px 0 18px; }
+
+
+/* User Log */
+  .user-item { background: #1b1e2a; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; border-left: 3px solid #8b5cff; }
+.user-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.user-device { font-size: 13px; font-weight: 800; color: #fff; }
+.user-time { font-size: 10px; color: #5a5f70; font-weight: 600; }
+.user-ip { font-size: 11px; color: #b8ffcf; font-weight: 600; margin-bottom: 3px; word-break: break-all; }
+.user-ua { font-size: 10px; color: #5a5f70; word-break: break-all; line-height: 1.4; }
+.user-summary { background: #1b1e2a; border-radius: 12px; padding: 14px; margin-bottom: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; text-align: center; }
+.user-summary .item .num { font-size: 22px; font-weight: 800; color: #8b5cff; }
+.user-summary .item .label { font-size: 10px; color: #8d91a2; font-weight: 600; margin-top: 2px; }
 </style>
 </head>
 <body>
@@ -381,7 +393,7 @@ button:active { transform: scale(.98); }
     <button class="btn-check" onclick="hapusContact()">🗑️ HAPUS KONTAK</button>
   </div>
 
-  <!-- ========================================== -->
+<!-- ========================================== -->
 <!-- TAB: INFO -->
 <!-- ========================================== -->
 <div class="tab-content" id="tab-info">
@@ -397,6 +409,17 @@ button:active { transform: scale(.98); }
   <input id="infoContact" type="text" placeholder="WhatsApp: 628xxx | Telegram: @xxx" style="margin-bottom:12px;">
 
   <button class="btn-apply" onclick="simpanInfo()" style="background:linear-gradient(135deg,#00c896,#00a07a);">💾 SIMPAN INFO</button>
+</div>
+
+  <!-- ========================================== -->
+<!-- TAB: USER LOG -->
+<!-- ========================================== -->
+<div class="tab-content" id="tab-users">
+  <h2 style="font-size:16px;color:#8d91a2;margin-bottom:14px;">👥 USER TERAKHIR MASUK</h2>
+  <button class="btn-check" onclick="loadUsers()">🔄 REFRESH DAFTAR USER</button>
+  <div id="usersContent" style="text-align:left;margin-top:14px;">
+    <div style="color:#8d91a2;text-align:center;padding:20px;">Klik "Refresh" untuk memuat data.</div>
+  </div>
 </div>
 
   <!-- ========================================== -->
@@ -454,6 +477,10 @@ button:active { transform: scale(.98); }
   <div class="nav-icon">ℹ️</div>
   <div class="nav-label">Info</div>
   </button>
+  <button class="nav-item" data-tab="users" onclick="switchTab('users', this)">
+  <div class="nav-icon">👥</div>
+  <div class="nav-label">User</div>
+  </button>
   <button class="nav-item" data-tab="emergency" onclick="switchTab('emergency', this)">
     <div class="nav-icon">🚨</div>
     <div class="nav-label">Emerg.</div>
@@ -494,6 +521,11 @@ function switchTab(tabName, el) {
     const k1 = $('key1').value.trim();
     const k2 = $('key2').value.trim();
     if (k1 && k2) loadInfoAdmin
+  }
+  if (tabName === 'users') {
+    const k1 = $('key1').value.trim();
+    const k2 = $('key2').value.trim();
+    if (k1 && k2) loadUsers();
   }
 }
 
@@ -1045,6 +1077,61 @@ async function konfirmasiPanic(action) {
     showStatus('❌ Error: ' + err.message, 'error');
   }
 }
+
+  // ==========================================
+// USER LOG
+// ==========================================
+async function loadUsers() {
+  const key1 = $('key1').value.trim();
+  const key2 = $('key2').value.trim();
+  if (!key1 || !key2) return showStatus('⚠️ Isi kedua kunci dulu!', 'error');
+
+  const box = $('usersContent');
+  box.innerHTML = '<div style="color:#8d91a2;text-align:center;padding:20px;">⏳ Memuat user...</div>';
+
+  try {
+    const res = await fetch('/api/users?key1=' + encodeURIComponent(key1) + '&key2=' + encodeURIComponent(key2), { cache: 'no-store' });
+    const data = await res.json();
+
+    if (!res.ok) {
+      box.innerHTML = '<div style="color:#ff8888;text-align:center;padding:20px;">❌ ' + (data.error || 'Gagal') + '</div>';
+      return;
+    }
+
+    if (!data.logs || data.logs.length === 0) {
+      box.innerHTML = '<div style="color:#5a5f70;text-align:center;padding:20px;">📭 Belum ada user yang masuk.</div>';
+      return;
+    }
+
+    let html = `
+      <div class="user-summary">
+        <div class="item"><div class="num">${data.total}</div><div class="label">Total Log</div></div>
+        <div class="item"><div class="num">${data.uniqueIPs}</div><div class="label">IP Unik</div></div>
+      </div>
+    `;
+
+    data.logs.forEach(log => {
+      const date = new Date(log.time);
+      const timeStr = date.toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+      html += `
+        <div class="user-item">
+          <div class="user-head">
+            <span class="user-device">${log.device}</span>
+            <span class="user-time">${timeStr}</span>
+          </div>
+          <div class="user-ip">🌐 IP: ${log.ip}</div>
+          <div class="user-ua">${log.ua}</div>
+          <div style="font-size:10px;color:#8b5cff;font-weight:700;margin-top:4px;">👁️ ${log.visits || 1}x kunjungan</div>
+        </div>
+      `;
+    });
+
+    box.innerHTML = html;
+    showStatus('✅ ' + data.total + ' user dimuat', 'off');
+  } catch (err) {
+    box.innerHTML = '<div style="color:#ff8888;text-align:center;padding:20px;">❌ Error: ' + err.message + '</div>';
+  }
+    }
 
 // ==========================================
 // PAKAI APLIKASI
