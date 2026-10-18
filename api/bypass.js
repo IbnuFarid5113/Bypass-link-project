@@ -9,6 +9,7 @@ const ENDPOINTS = {
   delta: 'izen',
   linkvertise: 'linkvertise',
   move2link: 'move2link',
+  bicolink: 'bicolink',     
   sub2unlock: 'sub2unlock',
   sub4unlock: 'sub4unlock',
   universal: 'universal'
