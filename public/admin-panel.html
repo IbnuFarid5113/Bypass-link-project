@@ -521,7 +521,7 @@ function switchTab(tabName, el) {
   if ( tabName === 'info') {
     const k1 = $('key1').value.trim();
     const k2 = $('key2').value.trim();
-    if (k1 && k2) loadInfoAdmin
+    if (k1 && k2) loadInfoAdmin();
   }
   if (tabName === 'users') {
     const k1 = $('key1').value.trim();
