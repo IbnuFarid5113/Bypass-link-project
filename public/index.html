@@ -785,6 +785,23 @@ body.has-broadcast{padding-top:60px}
   </div>
 </div>
 <!-- END TAB INFO -->
+
+  <!-- TAB: FEEDBACK -->
+<div class="tab-page" id="page-feedback">
+  <h2 style="font-size:22px;font-weight:800;margin-bottom:6px;">📝 Feedback / Saran</h2>
+  <p style="color:#8d91a2;font-size:13px;margin-bottom:20px;">Bantu kami jadi lebih baik</p>
+
+  <div class="info-box">
+    <label style="display:block; margin-bottom:6px; font-size:12px; color:#8d91a2;">Nama (Opsional)</label>
+    <input id="fbName" type="text" placeholder="Anonim" style="width:100%; height:44px; padding:0 12px; background:#12151f; border:1px solid #303444; border-radius:10px; color:#fff; margin-bottom:12px; outline:none;">
+    
+    <label style="display:block; margin-bottom:6px; font-size:12px; color:#8d91a2;">Pesan / Saran</label>
+    <textarea id="fbMessage" placeholder="Tulis saran atau kendala di sini..." rows="5" style="width:100%; padding:12px; background:#12151f; border:1px solid #303444; border-radius:10px; color:#fff; margin-bottom:15px; outline:none; resize:vertical; font-family:inherit;"></textarea>
+    
+    <button onclick="kirimFeedback()" style="width:100%; height:50px; background:linear-gradient(135deg,#00c896,#00a07a); color:#fff; border:0; border-radius:12px; font-weight:800; font-size:15px; cursor:pointer;">Kirim Feedback</button>
+  </div>
+</div>
+<!-- END TAB FEEDBACK -->
 </main>
 
 <div class="modal" id="modal">
@@ -1870,6 +1887,44 @@ function tutupWelcome() {
 }
 
 // Hapus panggilan cekWelcome() di luar sini, biarkan init() yang memanggilnya
+
+  // ==========================================
+// FEEDBACK
+// ==========================================
+const FEEDBACK_API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.hostname.includes('github.io'))
+  ? 'https://bypaslink.vercel.app/api/feedback'
+  : '/api/feedback';
+
+async function kirimFeedback() {
+  const name = document.getElementById('fbName').value.trim();
+  const message = document.getElementById('fbMessage').value.trim();
+
+  if (!message) return toast('Pesan tidak boleh kosong!');
+
+  const btn = event.target;
+  btn.textContent = '⏳ Mengirim...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(FEEDBACK_API + '?action=send&name=' + encodeURIComponent(name) + '&message=' + encodeURIComponent(message), { cache: 'no-store' });
+    const data = await res.json();
+    
+    if (data.success) {
+      toast('✅ Feedback berhasil dikirim!');
+      document.getElementById('fbName').value = '';
+      document.getElementById('fbMessage').value = '';
+    } else {
+      toast('❌ Gagal mengirim feedback');
+    }
+  } catch (e) {
+    toast('❌ Error: ' + e.message);
+  } finally {
+    btn.textContent = 'Kirim Feedback';
+    btn.disabled = false;
+  }
+}
+
+  
 </script>
   <!-- DRAWER OVERLAY -->
 <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
@@ -1899,6 +1954,15 @@ function tutupWelcome() {
     </div>
     <div class="drawer-arrow">›</div>
   </div>
+
+    <div class="drawer-item" onclick="switchPage('feedback', this)">
+  <div class="drawer-icon">📝</div>
+  <div class="drawer-text">
+    <b>Feedback / Saran</b>
+    <small>Kirim masukan untuk admin</small>
+  </div>
+  <div class="drawer-arrow">›</div>
+    </div>
 
   <div class="drawer-item" data-page="info" onclick="switchPage('info', this)">
     <div class="drawer-icon">ℹ️</div>
