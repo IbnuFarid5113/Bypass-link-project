@@ -674,6 +674,11 @@ body.has-broadcast{padding-top:60px}
       <div class="info"><b>MOVE2LINK BYPASS</b><small>Bypass Link • Fast</small></div>
       <div class="arrow">›</div>
     </div>
+      <div class="service" style="--accent:#d400c4" data-type="bicolink">
+      <div class="icon">≡★</div>
+      <div class="info"><b>BICOLINK BYPASS</b><small>Bypass Link • Fast</small></div>
+      <div class="arrow">›</div>
+    </div>
     <div class="service" style="--accent:#00c896" data-type="sub2unlock">
       <div class="icon">≡★</div>
       <div class="info"><b>SUB2UNLOCK BYPASS</b><small>Bypass Link • Fast</small></div>
@@ -1021,6 +1026,7 @@ const ENDPOINTS = {
   delta: 'izen',
   linkvertise: 'linkvertise',
   move2link: 'move2link',
+  bicolink: 'bicolink',
   sub2unlock: 'sub2unlock',
   sub4unlock: 'sub4unlock',
   universal: 'universal'
@@ -1032,6 +1038,7 @@ const SERVICE_NAMES = {
   delta: "Delta Bypass",
   linkvertise: "Linkvertise Bypass",
   move2link: "Move2link Bypass",
+  bicolink: "Bicolink Bypass",
   sub2unlock: "Sub2Unlock Bypass",
   sub4unlock: "Sub4Unlock Bypass",
   universal: "Universal Bypass"
@@ -1043,6 +1050,7 @@ const SERVICE_PLACEHOLDERS = {
   delta: "Tempel link DeltaBypass di sini",
   linkvertise: "Tempel link Linkvertise di sini",
   move2link: "Tempel link Move2link di sini",
+  bicolink: "Tempel link Bicolink di sini",
   sub2unlock: "Tempel link Sub2Unlock di sini",
   sub4unlock: "Tempel link Sub4Unlock di sini",
   universal: "Tempel link Universal Bypass di sini"
@@ -1228,14 +1236,14 @@ startProgress();
     } else if (currentType === "linkvertise") {
       success = !!(json && json.status);
       bypassed = json && json.bypassed_url;
-    } else if (currentType === "move2link" || currentType === "sub2unlock" || currentType === "sub4unlock") {
+    } else if (currentType === "move2link" || currentType === "bicolink" || currentType === "sub2unlock" || currentType === "sub4unlock") {
   success = !!(json && json.status);
   bypassed = json && (
     json.bypassed_url ||
-    (json.bypassed_urls && json.bypassed_urls[0]) ||  // ← TAMBAH INI
+    (json.bypassed_urls && json.bypassed_urls[0]) ||
     json.url ||
     json.result
-    );
+  );
     } else if (currentType === "universal") {
       success = !!(json && json.status);
       bypassed = json && (json.result || json.url || json.bypassed_url);
