@@ -1666,42 +1666,64 @@ async function cekKontak() {
 
 cekKontak();
 
-  // ==========================================
-// DRAWER MENU
+// ==========================================
+// DRAWER & ROUTING
 // ==========================================
 function openDrawer() {
-  const drawer = document.getElementById('drawer');
-  const overlay = document.getElementById('drawerOverlay');
-  if (drawer) drawer.classList.add('show');
-  if (overlay) overlay.classList.add('show');
+  document.getElementById('drawer').classList.add('show');
+  document.getElementById('drawerOverlay').classList.add('show');
   document.body.style.overflow = 'hidden';
 }
 
 function closeDrawer() {
-  const drawer = document.getElementById('drawer');
-  const overlay = document.getElementById('drawerOverlay');
-  if (drawer) drawer.classList.remove('show');
-  if (overlay) overlay.classList.remove('show');
+  document.getElementById('drawer').classList.remove('show');
+  document.getElementById('drawerOverlay').classList.remove('show');
   document.body.style.overflow = '';
 }
 
-function switchPage(pageName, el) {
-  // Sembunyikan semua tab page
+// Fungsi untuk cek URL saat halaman dimuat
+function checkRoute() {
+  const path = window.location.pathname;
+  let page = 'home';
+  
+  if (path.includes('/riwayat')) page = 'history';
+  if (path.includes('/info')) page = 'info';
+
+  // Tampilkan halaman yang sesuai
   document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
-  const target = document.getElementById('page-' + pageName);
+  const target = document.getElementById('page-' + page);
   if (target) target.classList.add('active');
 
-  // Update drawer item
+  // Update status aktif di menu drawer
   document.querySelectorAll('.drawer-item').forEach(i => i.classList.remove('active'));
-  if (el) el.classList.add('active');
+  const activeMenu = document.querySelector(`.drawer-item[data-page="${page}"]`);
+  if (activeMenu) activeMenu.classList.add('active');
 
-  // Auto-load
-  if (pageName === 'history') renderHistory();
-  if (pageName === 'info') renderInfo();
-
-  // Tutup drawer
-  closeDrawer();
+  // Jalankan fungsi render jika perlu
+  if (page === 'history' && typeof renderHistory === 'function') renderHistory();
+  if (page === 'info' && typeof loadInfoPage === 'function') loadInfoPage();
 }
+
+// Jalankan cek rute saat pertama kali dibuka
+checkRoute();
+
+// Tangkap event klik menu drawer (biar transisi mulus tanpa reload penuh)
+document.querySelectorAll('.drawer-item').forEach(item => {
+  item.addEventListener('click', (e) => {
+    e.preventDefault(); // Cegah reload browser bawaan
+    const href = item.getAttribute('href');
+    
+    // Ubah URL di address bar tanpa reload
+    window.history.pushState({}, '', href);
+    
+    // Tutup drawer dan ganti halaman
+    closeDrawer();
+    checkRoute();
+  });
+});
+
+// Tangkap tombol Back/Forward browser
+window.addEventListener('popstate', checkRoute);
 
   // ==========================================
 // LOG USER MASUK (Hanya jalan kalau bukan bot/admin)
@@ -1886,32 +1908,32 @@ function tutupWelcome() {
   </div>
 
   <div class="drawer-menu">
-    <div class="drawer-item active" data-page="home" onclick="switchPage('home', this)">
-      <div class="drawer-icon">🏠</div>
-      <div class="drawer-text">
-        <b>Home</b>
-        <small>Halaman utama bypass</small>
-      </div>
-      <div class="drawer-arrow">›</div>
+  <a href="/" class="drawer-item active" data-page="home">
+    <div class="drawer-icon">🏠</div>
+    <div class="drawer-text">
+      <b>Home</b>
+      <small>Halaman utama bypass</small>
     </div>
+    <div class="drawer-arrow">›</div>
+  </a>
 
-    <div class="drawer-item" data-page="history" onclick="switchPage('history', this)">
-      <div class="drawer-icon">📜</div>
-      <div class="drawer-text">
-        <b>Riwayat</b>
-        <small>Bypass yang pernah kamu lakukan</small>
-      </div>
-      <div class="drawer-arrow">›</div>
+  <a href="/riwayat" class="drawer-item" data-page="history">
+    <div class="drawer-icon">📜</div>
+    <div class="drawer-text">
+      <b>Riwayat</b>
+      <small>Bypass yang pernah kamu lakukan</small>
     </div>
+    <div class="drawer-arrow">›</div>
+  </a>
 
-    <div class="drawer-item" data-page="info" onclick="switchPage('info', this)">
-      <div class="drawer-icon">ℹ️</div>
-      <div class="drawer-text">
-        <b>Info</b>
-        <small>Tentang aplikasi</small>
-      </div>
-      <div class="drawer-arrow">›</div>
+  <a href="/info" class="drawer-item" data-page="info">
+    <div class="drawer-icon">ℹ️</div>
+    <div class="drawer-text">
+      <b>Info</b>
+      <small>Tentang aplikasi</small>
     </div>
+    <div class="drawer-arrow">›</div>
+  </a>
   </div>
 
   <div class="drawer-footer">
