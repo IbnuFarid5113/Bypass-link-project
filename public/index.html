@@ -1664,9 +1664,13 @@ function detectDevice() {
   return 'Unknown';
 }
 
-async function logUserVisit() {
+  async function logUserVisit() {
   // Jangan log kalau admin mode
   if (isAdminMode) return;
+
+  // Jangan log kalau yang masuk adalah bot / Headless Chrome (bot Vercel)
+  const ua = navigator.userAgent.toLowerCase();
+  if (ua.includes('headlesschrome') || ua.includes('bot') || ua.includes('crawler')) return;
   
   try {
     const device = detectDevice();
