@@ -299,8 +299,8 @@ button:active { transform: scale(.98); }
 
 <!-- HEADER -->
 <div class="header">
-  <h1>🔐 Admin Panel</h1>
-  <div class="sub">Masukkan 2 kunci rahasia</div>
+  <h1>Admin Panel</h1>
+  <div class="sub">🔒 Akses Rahasia • Khusus Admin</div>
 </div>
 
 <!-- CONTAINER -->
@@ -1135,19 +1135,15 @@ async function loadUsers() {
 // PAKAI APLIKASI
 // ==========================================
 function bukaAplikasi() {
-  let key1 = $('key1').value.trim();
-  let key2 = $('key2').value.trim();
+  const key1 = document.getElementById('key1').value.trim();
+  const key2 = document.getElementById('key2').value.trim();
 
-  // Kalau kunci belum diisi di form, minta input lewat prompt
+  // Jika kolom kunci di atas belum diisi, beri peringatan
   if (!key1 || !key2) {
-    key1 = prompt("Masukkan Kunci Pertama:");
-    if (!key1) return;
-    
-    key2 = prompt("Masukkan Kunci Kedua:");
-    if (!key2) return;
+    return showStatus('⚠️ Isi Kunci Pertama dan Kunci Kedua di atas dulu!', 'error');
   }
 
-  // Buka aplikasi di tab baru dengan token admin
+  // Buka aplikasi web utama di tab baru dengan membawa kunci dari input
   const url = '/?admin=' + encodeURIComponent(key1) + '&key2=' + encodeURIComponent(key2);
   window.open(url, '_blank');
   showStatus('✅ Aplikasi dibuka di tab baru (Mode Admin)', 'off');
